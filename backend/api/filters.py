@@ -38,10 +38,10 @@ class RecipeFilter(filters.FilterSet):
         if name == 'is_favorited' and self.request.user.is_authenticated:
             return queryset.filter(favorite__user=self.request.user)
         elif name == 'is_in_shopping_cart' and \
-              self.request.user.is_authenticated:
+                self.request.user.is_authenticated:
             return queryset.filter(shoppingcart__user=self.request.user)
         elif name == 'author' and value == 'me' and \
-              self.request.user.is_authenticated:
+                self.request.user.is_authenticated:
             return queryset.filter(author=self.request.user)
         elif name == 'author':
             if self.request.user.is_authenticated:
