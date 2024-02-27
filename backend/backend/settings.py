@@ -1,19 +1,21 @@
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret')
 DEBUG = True
 #DEBUG = os.getenv('DEBUG', 'False').lower() == 'True'
-#ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(', ')
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,127.0.0.1:8000').split(',')
 
 
 AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
+
+    'django_filters',
     'djoser',
     'rest_framework',
     'rest_framework.authtoken',
@@ -64,7 +66,7 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB', 'django'),
         'USER': os.getenv('POSTGRES_USER', 'django'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
+        'HOST': os.getenv('DB_HOST', 'db'),
         'PORT': os.getenv('DB_PORT', 5432)
     }
 }
@@ -72,9 +74,9 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/data/db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-} 
+}
 """
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -106,37 +108,37 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'collected_static'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    ],
+    'DEFAULT_PAGINATION_CLASS': [
+        'rest_framework.pagination.PageNumberPagination'
+    ],
     'PAGE_SIZE': 6,
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
 DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'HIDE_USERS': False,
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': False,
-    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
     'SERIALIZERS': {
-        'user': 'api.serializers.CustomUserSerializer',
-        'user_create': 'api.serializers.CustomCreateUserSerializer',
-        'current_user': 'api.serializers.CustomUserSerializer',
+        'user': 'api.serializers.UserDetailSerializer',
+        'user_create': 'api.serializers.UserRegistrationSerializer',
+        'current_user': 'api.serializers.UserMeSerializer'
     },
     'PERMISSIONS': {
-        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-        'user_list': ['rest_framework.permissions.AllowAny']
+        'user': ['api.permissions.IsAuthorAdminOrReadOnly'],
+        'user_list': ['api.permissions.IsAuthorAdminOrReadOnly'],
     },
+    'HIDE_USERS': False,
+    'LOGIN_FIELD': 'email',
 }
 
-CSV_FILES_DIR = os.path.join(BASE_DIR, 'data')
+CSRF_TRUSTED_ORIGINS = ['https://apkfoodgram.zapto.org']
