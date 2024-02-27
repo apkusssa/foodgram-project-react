@@ -146,9 +146,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         with transaction.atomic():
-            recipe = serializer.save(author=request.user)
-            for ingredient_data in ingredients_data:
-                headers = self.get_success_headers(serializer.data)
+            serializer.save(author=request.user)
+            headers = self.get_success_headers(serializer.data)
         return response.Response(
             serializer.data,
             status=status.HTTP_201_CREATED,

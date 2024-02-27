@@ -23,14 +23,15 @@ class Base64ImageField(serializers.ImageField):
         if isinstance(data, str) and data.startswith('data:image'):
             try:
                 format, imgstr = data.split(';base64,')
-                ext = imghdr.what("", h=base64.b64decode(imgstr))
+                image_data = base64.b64decode(imgstr)
+                ext = imghdr.what(None, h=image_data)
                 if not ext:
                     raise serializers.ValidationError(
                         "Некорректное изображение"
                     )
                 name = f'{self.context["request"].user.username}.{ext}'
-                return ContentFile(base64.b64decode(imgstr), name=name)
-            except Exception as e:
+                return ContentFile(image_data, name=name)
+            except Exception:
                 raise serializers.ValidationError(
                     "Ошибка при обработке изображения"
                 )

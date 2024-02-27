@@ -10,8 +10,8 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'True'
 
 ALLOWED_HOSTS = os.getenv(
     'ALLOWED_HOSTS',
-    'localhost,127.0.0.1,127.0.0.1:8000'
-    ).split(',')
+    'localhost 127.0.0.1 127.0.0.1:8000'
+).split()
 
 
 AUTH_USER_MODEL = 'users.User'
