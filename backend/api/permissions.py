@@ -7,10 +7,8 @@ class IsOwnerOnly(permissions.BasePermission):
     """
     def has_object_permission(self, request, view, obj):
         try:
-            # Разрешено только владельцу объекта.
             return obj.email == request.user.email
         except AttributeError:
-            # Если пользователь анонимный, отклоняем запрос.
             return False
 
 
