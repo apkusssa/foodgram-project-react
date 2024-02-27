@@ -17,11 +17,12 @@ from users.models import Follow, User
 
 from .filters import IngredientSearchFilter, RecipeFilter
 from .paginations import CustomPagination
-from .permissions import IsAuthorAdminOrReadOnly, IsOwnerOnly
+from .permissions import IsAuthorAdminOrReadOnly
 from .serializers import (
     FollowSerializer, UserDetailSerializer, FavoriteSerializer,
     IngredientAmountForRecipe, IngredientSerializer, RecipeSerializer,
-    RecipesListSerializer, ShoppingCartSerializer, TagSerializer, UserMeSerializer
+    RecipesListSerializer, ShoppingCartSerializer, TagSerializer,
+    UserMeSerializer
 )
 from .utils import get_shopping_cart_footer
 

@@ -19,7 +19,8 @@ class Command(BaseCommand):
             data = json.load(json_file)
             for item in data:
                 Ingredient.objects.get_or_create(
-                    name=item['name'], measurement_unit=item['measurement_unit']
+                    name=item['name'],
+                    measurement_unit=item['measurement_unit']
                 )
 
     def handle(self, *args, **options):

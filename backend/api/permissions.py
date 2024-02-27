@@ -3,7 +3,8 @@ from rest_framework import permissions
 
 class IsOwnerOnly(permissions.BasePermission):
     """
-    Кастомный класс разрешения, который разрешает доступ только владельцу объекта.
+    Кастомный класс разрешения,
+    который разрешает доступ только владельцу объекта.
     """
     def has_object_permission(self, request, view, obj):
         try:

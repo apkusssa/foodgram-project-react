@@ -40,6 +40,7 @@ class Base64ImageField(serializers.ImageField):
 class UserMeSerializer(UserSerializer):
     """Сериализатор me пользователя."""
     is_subscribed = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = User
         fields = (
@@ -50,13 +51,12 @@ class UserMeSerializer(UserSerializer):
             'last_name',
             'is_subscribed'
         )
-    
+
     def to_representation(self, instance):
         if self.context['request'].user.is_anonymous:
-            # Если пользователь анонимный, вызвать исключение AuthenticationFailed
             raise AuthenticationFailed("Вы не аутентифицированы.")
         return super().to_representation(instance)
-    
+
     def get_is_subscribed(self, obj):
         """
         Проверяет, подписан ли текущий пользователь
