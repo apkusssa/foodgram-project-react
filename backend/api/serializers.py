@@ -368,6 +368,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
+        ordering = ('-pub_date',)
         fields = (
             'id',
             'tags',

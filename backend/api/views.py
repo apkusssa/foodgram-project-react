@@ -58,12 +58,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe__id=pk
             ).exists():
                 return Response(
-                    {"errors": "Рецепт уже добавлен."},
+                    {'errors': 'Рецепт уже добавлен.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             if not Recipe.objects.filter(id=pk).exists():
                 return Response(
-                    {"errors": "Такого рецепта не существует."},
+                    {'errors': 'Такого рецепта не существует.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             recipe = get_object_or_404(Recipe, id=pk)
@@ -77,7 +77,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 obj.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {"errors": "Нет такого рецепта."},
+                {'errors': 'Нет такого рецепта.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -93,12 +93,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe__id=pk
             ).exists():
                 return Response(
-                    {"errors": "Рецепт уже добавлен."},
+                    {'errors': 'Рецепт уже добавлен.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             if not Recipe.objects.filter(id=pk).exists():
                 return Response(
-                    {"errors": "Такого рецепта не существует."},
+                    {'errors': 'Такого рецепта не существует.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             recipe = get_object_or_404(Recipe, id=pk)
@@ -112,7 +112,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 obj.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {"errors": "Нет такого рецепта."},
+                {'errors': 'Нет такого рецепта.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
