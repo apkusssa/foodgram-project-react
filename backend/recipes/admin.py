@@ -1,84 +1,84 @@
 from django.contrib import admin
-
-from recipes.models import (
-    Favorite, Ingredient, IngredientAmountForRecipe,
-    Recipe, ShoppingCart, Tag
-)
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCart, Tag)
 
 
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
-    search_fields = ('user__username', 'recipe__name')
-
-
-@admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measurement_unit')
-    search_fields = ('name', )
-
-
-class IngredientInline(admin.StackedInline):
-    model = IngredientAmountForRecipe
-    extra = 0
-
-
-@admin.register(IngredientAmountForRecipe)
-class IngredientAmountForRecipeAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'amount')
-    list_filter = ('recipe', )
-    search_fields = ('ingredient__name', 'recipe__name')
+class RecipeIngredientAdmin(admin.StackedInline):
+    model = RecipeIngredient
+    autocomplete_fields = ('ingredient',)
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = (IngredientInline, )
-    fields = (
-        'author',
+    list_display = (
         'name',
-        'image',
-        'text',
-        'ingredient_inline',
-        'tags',
-        'cooking_time'
+        'author',
+        'get_favorite_count',
     )
+    search_fields = (
+        'name',
+        'author__username',
+        'tags',
+    )
+    list_filter = (
+        'name',
+        'author__username',
+        'tags',
+    )
+    inlines = (RecipeIngredientAdmin,)
+    empty_value_display = 'пусто'
 
-    list_display = ('name', 'author', 'amount_favorite')
-    list_filter = ('author', 'name', 'tags')
-    search_fields = ('author__username', 'name__icontains')
-
-    readonly_fields = ('ingredient_inline', )
-
-    @admin.display(description='Ингредиенты')
-    def ingredient_inline(self, *args, **kwargs):
-        from django.template.loader import get_template
-        context = getattr(self.response, 'context_data', None) or {}
-        context['inline_admin_formset'] = (
-            context['inline_admin_formsets'].pop(0)
-        )
-        inline = context['inline_admin_formset']
-        return get_template(inline.opts.template).render(context, self.request)
-
-    def render_change_form(self, request, *args, **kwargs):
-        self.request = request
-        self.response = super().render_change_form(request, *args, **kwargs)
-        return self.response
-
-    @admin.display(description='Количество в избранном')
-    def amount_favorite(self, obj):
-        amount = Favorite.objects.filter(recipe=obj).count()
-        return amount
-
-
-@admin.register(ShoppingCart)
-class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
-    list_filter = ('user', 'recipe')
-    search_fields = ('user__username', 'recipe__name')
+    @admin.display(description='В избранном')
+    def get_favorite_count(self, obj):
+        return obj.favourite.count()
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('slug', )
-    list_filter = ('slug', )
-    search_fields = ('slug', )
+    list_display = ('name', 'color', 'slug')
+    search_fields = ('name',)
+    list_filter = ('name',)
+    empty_value_display = 'пусто'
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'recipe')
+    search_fields = ('user__username', 'recipe__name')
+    list_filter = ('user__username', 'recipe__name')
+    empty_value_display = 'пусто'
+
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'measurement_unit',
+    )
+    search_fields = (
+        'name',
+        'measurement_unit',
+    )
+    list_filter = (
+        'name',
+        'measurement_unit',
+    )
+    empty_value_display = 'пусто'
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+    )
+    search_fields = (
+        'user__username',
+        'recipe__name',
+    )
+    list_filter = (
+        'user__username',
+        'recipe__name',
+    )
+    empty_value_display = 'пусто'

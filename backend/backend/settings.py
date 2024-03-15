@@ -8,10 +8,12 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'secret')
 # DEBUG = True
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'True'
 
-ALLOWED_HOSTS = os.getenv(
-    'ALLOWED_HOSTS',
-    'localhost 127.0.0.1 127.0.0.1:8000'
-).split()
+ALLOWED_HOSTS = [
+    os.getenv('ALLOWED_HOSTS', 'localhost'),
+    '127.0.0.1',
+    'localhost:8000'
+]
+
 
 
 AUTH_USER_MODEL = 'users.User'
@@ -31,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -41,7 +44,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -116,29 +122,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
-    ],
-    'DEFAULT_PAGINATION_CLASS': [
-        'rest_framework.pagination.PageNumberPagination'
-    ],
-    'PAGE_SIZE': 6,
 }
 
 DJOSER = {
-    'SERIALIZERS': {
-        'user': 'api.serializers.UserDetailSerializer',
-        'user_create': 'api.serializers.UserRegistrationSerializer',
-        'current_user': 'api.serializers.UserMeSerializer'
+    "SERIALIZERS": {
+        "user_create": "api.serializers.CustomUserCreateSerializer",
+        "user": "api.serializers.CustomUserSerializer",
+        "current_user": "api.serializers.CustomUserSerializer",
     },
-    'PERMISSIONS': {
-        'user': ['api.permissions.IsAuthorAdminOrReadOnly'],
-        'user_list': ['api.permissions.IsAuthorAdminOrReadOnly'],
+    "PERMISSIONS": {
+        "user": ["api.permissions.IsAuthorOrReadOnly"],
+        "user_list": ["rest_framework.permissions.AllowAny"],
     },
     'HIDE_USERS': False,
     'LOGIN_FIELD': 'email',

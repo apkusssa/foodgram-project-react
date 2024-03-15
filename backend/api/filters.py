@@ -1,49 +1,58 @@
-from django_filters import rest_framework as filters
-from rest_framework.filters import SearchFilter
+from django.contrib.auth import get_user_model
+from django_filters.rest_framework import FilterSet, filters
 
-from recipes.models import Recipe
+from recipes.models import Ingredient, Recipe, Tag
 
-
-class IngredientSearchFilter(SearchFilter):
-    search_param = 'name'
+User = get_user_model()
 
 
-class RecipeFilter(filters.FilterSet):
-    author = filters.CharFilter(
-        field_name='author',
-        method='get_filter_field'
+class IngredientFilter(FilterSet):
+    name = filters.CharFilter(lookup_expr='startswith')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
+
+
+class RecipeFilter(FilterSet):
+    tags = filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        to_field_name='slug',
+        queryset=Tag.objects.all(),
     )
-    tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
+
     is_favorited = filters.BooleanFilter(
-        field_name='is_favorited',
-        method='get_filter_field'
+        method='filter_is_favorited'
     )
     is_in_shopping_cart = filters.BooleanFilter(
-        field_name='is_in_shopping_cart',
-        method='get_filter_field'
+        method='filter_is_in_shopping_cart'
     )
 
     class Meta:
         model = Recipe
         fields = (
-            'author',
             'tags',
+            'author',
             'is_favorited',
-            'is_in_shopping_cart'
+            'is_in_shopping_cart',
         )
 
-    def get_filter_field(self, queryset, name, value):
-        if not value:
-            return queryset
-        if name == 'is_favorited' and self.request.user.is_authenticated:
-            return queryset.filter(favorite__user=self.request.user)
-        elif name == 'is_in_shopping_cart' and \
-                self.request.user.is_authenticated:
-            return queryset.filter(shoppingcart__user=self.request.user)
-        elif name == 'author' and value == 'me' and \
-                self.request.user.is_authenticated:
-            return queryset.filter(author=self.request.user)
-        elif name == 'author':
-            if self.request.user.is_authenticated:
-                return queryset.filter(author=self.request.user)
-        return queryset
+    def is_anonymous_or_in_db(self, queryset, name, value, related_field):
+        if self.request.user.is_anonymous:
+            return Recipe.objects.none() if value else queryset
+        objects = getattr(
+            self.request.user, related_field
+        ).all()
+        return queryset.filter(
+            pk__in=objects.values_list('recipe__pk', flat=True)
+        )
+
+    def filter_is_in_shopping_cart(self, queryset, name, value):
+        return (
+            self.is_anonymous_or_in_db
+            (queryset, name, value, 'shopping_cart'))
+
+    def filter_is_favorited(self, queryset, name, value):
+        return (
+            self.is_anonymous_or_in_db
+            (queryset, name, value, 'favourite'))
