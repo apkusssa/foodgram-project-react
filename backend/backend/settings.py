@@ -14,8 +14,6 @@ ALLOWED_HOSTS = [
     'localhost:8000'
 ]
 
-
-
 AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [

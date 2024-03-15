@@ -19,8 +19,7 @@ from .permissions import IsAuthorOrReadOnly
 from .serializers import (CreateSubscribeSerializer,
                           IngredientSerializer, RecipeListSerializer,
                           RecipeSerializer, ShortRecipeSerializer,
-                          SubscriptionSerializer, TagSerializer,
-                          CustomMeSerializer)
+                          SubscriptionSerializer, TagSerializer,)
 
 
 User = get_user_model()
