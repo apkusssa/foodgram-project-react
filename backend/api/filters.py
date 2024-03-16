@@ -55,4 +55,4 @@ class RecipeFilter(FilterSet):
     def filter_is_favorited(self, queryset, name, value):
         return (
             self.is_anonymous_or_in_db
-            (queryset, name, value, 'favourite'))
+            (queryset, name, value, 'favorite'))

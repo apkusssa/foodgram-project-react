@@ -11,8 +11,6 @@ from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
-from users.models import Follow
-
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
@@ -52,10 +50,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            if Favorite.objects.filter(
-                user=request.user,
-                recipe__id=pk
-            ).exists():
+            if request.user.favorite.filter(recipe__id=pk).exists():
                 return Response(
                     {'errors': 'Рецепт уже добавлен.'},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -71,7 +66,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
             recipe = get_object_or_404(Recipe, pk=pk)
-            obj = Favorite.objects.filter(user=request.user, recipe=recipe)
+            obj = obj = request.user.favorite.filter(recipe=recipe)
             if obj.exists():
                 obj.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
@@ -87,10 +82,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
-            if ShoppingCart.objects.filter(
-                user=request.user,
-                recipe__id=pk
-            ).exists():
+            if request.user.shopping_cart.filter(recipe__id=pk).exists():
                 return Response(
                     {'errors': 'Рецепт уже добавлен.'},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -106,7 +98,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
             recipe = get_object_or_404(Recipe, pk=pk)
-            obj = ShoppingCart.objects.filter(user=request.user, recipe=recipe)
+            obj = request.user.shopping_cart.filter(recipe=recipe)
             if obj.exists():
                 obj.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
@@ -147,11 +139,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 'attachment; filename="shopping_cart.txt"'
             )
             return response
-        else:
-            return HttpResponse(
-                'В списке покупок нет ни одного рецепта.',
-                content_type='text/plain'
-            )
+        return HttpResponse(
+            'В списке покупок нет ни одного рецепта.',
+            content_type='text/plain'
+        )
 
 
 class IngredientsVewSet(viewsets.ReadOnlyModelViewSet):
@@ -199,8 +190,7 @@ class CustomUserViewSet(UserViewSet):
                 author, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        subscription = Follow.objects.filter(
-            user=request.user, author=id)
+        subscription = user.follower.filter(author=id)
         if subscription.exists():
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
